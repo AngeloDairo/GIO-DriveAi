@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIO DriveAI Login UI</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #070a12;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Futuristic Background Grid & Glows */
+        .tech-bg {
+            background: radial-gradient(circle at 50% 50%, #0d162b 0%, #05070d 100%);
+            position: relative;
+        }
+        .tech-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(20, 110, 200, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(20, 110, 200, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Card with Glowing Cyan Border */
+        .glass-card {
+            background: rgba(10, 18, 36, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 246, 255, 0.35);
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.15), inset 0 0 20px rgba(0, 200, 255, 0.05);
+            border-radius: 2rem;
+        }
+
+        /* Input Glassmorphism */
+        .glass-input {
+            background: rgba(5, 10, 20, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            border-color: rgba(0, 246, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 246, 255, 0.3);
+            outline: none;
+        }
+
+        /* Primary Glow Button */
+        .btn-glow {
+            background: linear-gradient(135deg, #0085ff 0%, #00d2ff 100%);
+            box-shadow: 0 0 20px rgba(0, 150, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 30px rgba(0, 220, 255, 0.7);
+            transform: translateY(-1px);
+        }
+
+        /* Robot Avatar Glow */
+        .avatar-glow {
+            box-shadow: 0 0 20px rgba(0, 180, 255, 0.6);
+        }
+
+        /* Code matrix backdrop details on sides */
+        .tech-decor {
+            font-family: monospace;
+            font-size: 9px;
+            color: rgba(0, 200, 255, 0.2);
+            line-height: 1.2;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        body.drive-mode {
+            min-height: 100vh;
+            padding: 0;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(3, 12, 28, .20) 0%, rgba(7, 14, 27, .05) 41%, rgba(2, 5, 12, .78) 100%),
+                radial-gradient(ellipse at 76% 36%, rgba(255, 184, 115, .85) 0, rgba(211, 114, 111, .45) 13%, transparent 37%),
+                radial-gradient(ellipse at 33% 10%, rgba(94, 124, 165, .72) 0, transparent 38%),
+                linear-gradient(180deg, #172b48 0%, #586577 30%, #d17e69 50%, #473d45 59%, #111923 72%, #05080d 100%);
+        }
+
+        body.drive-mode::before {
+            content: "";
+            position: fixed;
+            z-index: 0;
+            inset: 35% 0 12%;
+            pointer-events: none;
+            opacity: .68;
+            background:
+                linear-gradient(180deg, transparent 0 36%, rgba(12, 21, 29, .9) 36.5% 39%, transparent 40%),
+                repeating-linear-gradient(90deg, transparent 0 6%, rgba(11, 21, 30, .9) 6.2% 8.3%, transparent 8.5% 10%),
+                linear-gradient(172deg, transparent 0 48%, rgba(15, 25, 34, .9) 48.5% 53%, transparent 53.5%),
+                linear-gradient(180deg, transparent 0 46%, #111923 47% 54%, transparent 55%);
+            clip-path: polygon(0 28%, 100% 7%, 100% 70%, 0 62%);
+        }
+
+        body.drive-mode::after {
+            content: "";
+            position: fixed;
+            z-index: 0;
+            inset: auto 0 0;
+            height: 31vh;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at 50% 0, rgba(75, 92, 112, .18), transparent 58%),
+                linear-gradient(180deg, rgba(2, 5, 10, .14), #020407 83%);
+            border-top: 1px solid rgba(210, 226, 255, .13);
+        }
+
+        body.drive-mode .drive-header {
+            position: fixed;
+            inset: 16px 22px auto;
+            z-index: 30;
+            width: auto;
+            max-width: none;
+        }
+
+        body.drive-mode .drive-header button,
+        body.drive-mode .drive-header button[aria-label="Settings"] {
+            border: 1px solid rgba(227, 241, 255, .25);
+            color: #f5f8ff;
+            background: rgba(13, 24, 42, .55);
+            backdrop-filter: blur(14px);
+        }
+
+        body.drive-mode .drive-main {
+            align-items: stretch;
+            justify-content: stretch;
+            min-height: 0;
+            padding: 78px clamp(16px, 4vw, 64px) 70px;
+        }
+
+        body.drive-mode .drive-shell {
+            width: 100%;
+            max-width: 1500px;
+            min-height: 0;
+            margin: auto;
+            padding: clamp(14px, 2.5vw, 34px);
+            align-items: stretch;
+            justify-content: center;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        body.drive-mode .brand-header {
+            position: fixed;
+            z-index: 30;
+            top: 21px;
+            left: 84px;
+            margin: 0;
+        }
+
+        body.drive-mode .brand-header .avatar-glow {
+            width: 48px;
+            height: 48px;
+            box-shadow: 0 0 24px rgba(86, 170, 255, .65);
+        }
+
+        .assistant-panel {
+            width: 100%;
+            color: #f7f9ff;
+        }
+
+        .drive-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(220px, .55fr);
+            gap: clamp(14px, 2.5vw, 32px);
+            width: min(100%, 1200px);
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .drive-grid > *,
+        .concierge-card,
+        .concierge-messages,
+        .drive-action-row {
+            min-width: 0;
+        }
+
+        .drive-glass {
+            border: 1px solid rgba(188, 220, 255, .36);
+            background: linear-gradient(145deg, rgba(18, 30, 51, .65), rgba(12, 22, 38, .53));
+            box-shadow: 0 18px 70px rgba(0, 0, 0, .3), inset 0 1px rgba(255, 255, 255, .12), 0 0 28px rgba(109, 174, 255, .12);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .concierge-card {
+            min-height: min(66vh, 610px);
+            border-radius: 28px;
+            padding: clamp(16px, 2.3vw, 28px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .concierge-top,
+        .assistant-identity,
+        .assistant-tools,
+        .composer-actions,
+        .vehicle-heading {
+            display: flex;
+            align-items: center;
+        }
+
+        .concierge-top {
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(231, 241, 255, .12);
+        }
+
+        .assistant-identity {
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .mini-robot {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(153, 204, 255, .48);
+            border-radius: 50%;
+            background: rgba(67, 133, 208, .26);
+            color: #b9ddff;
+            box-shadow: 0 0 17px rgba(91, 169, 255, .32);
+        }
+
+        .concierge-title {
+            font-size: clamp(15px, 1.8vw, 20px);
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-clock {
+            font-size: 12px;
+            color: rgba(240, 245, 255, .72);
+            white-space: nowrap;
+        }
+
+        .concierge-messages {
+            flex: 1;
+            min-height: 140px;
+            max-height: min(39vh, 360px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 17px 2px;
+            scrollbar-color: rgba(184, 214, 255, .3) transparent;
+        }
+
+        .concierge-messages > p {
+            align-self: flex-start;
+            max-width: min(92%, 580px);
+            margin: 0;
+            border: 1px solid rgba(215, 231, 255, .15);
+            border-radius: 5px 16px 16px 16px;
+            padding: 12px 15px;
+            color: #f4f6fb;
+            background: rgba(15, 25, 43, .58);
+            line-height: 1.55;
+        }
+
+        .concierge-messages .chat-user {
+            align-self: flex-end;
+            max-width: 88%;
+            border: 1px solid rgba(239, 220, 199, .3);
+            border-radius: 16px 5px 16px 16px;
+            padding: 10px 15px;
+            color: #fff;
+            background: rgba(111, 92, 88, .55);
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .concierge-messages .chat-assistant {
+            align-self: flex-start;
+            max-width: 96%;
+            border: 1px solid rgba(195, 219, 255, .2);
+            border-radius: 5px 16px 16px 16px;
+            padding: 13px 15px;
+            color: #f5f7fc;
+            background: rgba(13, 25, 44, .66);
+            line-height: 1.55;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .drive-action-row {
+            display: flex;
+            gap: 7px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(184, 214, 255, .28) transparent;
+        }
+
+        .drive-action-row::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .drive-action-row::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .drive-action-row::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(184, 214, 255, .28);
+        }
+
+        .drive-action,
+        .drive-icon-button,
+        .drive-submit,
+        .tip-toggle {
+            color: #f5f8ff;
+            border: 1px solid rgba(225, 239, 255, .27);
+            background: rgba(17, 30, 50, .53);
+            transition: background .18s ease, border-color .18s ease, transform .18s ease;
+        }
+
+        .drive-action:hover,
+        .drive-icon-button:hover,
+        .drive-submit:hover,
+        .tip-toggle:hover {
+            border-color: rgba(190, 224, 255, .7);
+            background: rgba(72, 116, 171, .48);
+            transform: translateY(-1px);
+        }
+
+        .drive-action {
+            flex: 0 0 auto;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 12px;
+        }
+
+        .drive-composer {
+            display: flex;
+            gap: 9px;
+            align-items: stretch;
+            border: 1px solid rgba(218, 233, 255, .28);
+            border-radius: 17px;
+            padding: 8px;
+            background: rgba(10, 20, 36, .62);
+        }
+
+        .drive-composer textarea {
+            flex: 1;
+            min-width: 0;
+            min-height: 42px;
+            max-height: 110px;
+            resize: vertical;
+            padding: 10px 12px;
+            border: 0;
+            outline: 0;
+            color: white;
+            background: transparent;
+            font: inherit;
+            font-size: 14px;
+        }
+
+        .drive-composer textarea::placeholder {
+            color: rgba(225, 235, 250, .6);
+        }
+
+        .composer-actions {
+            gap: 6px;
+        }
+
+        .drive-icon-button {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            border-radius: 12px;
+        }
+
+        .drive-icon-button[aria-pressed="true"] {
+            border-color: rgba(116, 197, 255, .9);
+            background: rgba(42, 125, 202, .58);
+            box-shadow: 0 0 16px rgba(52, 153, 255, .3);
+        }
+
+        .drive-submit {
+            min-width: 44px;
+            padding: 0 14px;
+            border-radius: 12px;
+            background: linear-gradient(140deg, rgba(39, 118, 203, .82), rgba(77, 175, 227, .58));
+        }
+
+        .vehicle-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .vehicle-card {
+            border-radius: 19px;
+            padding: 15px 17px;
+        }
+
+        .vehicle-heading {
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 5px;
+            color: rgba(228, 239, 255, .78);
+            font-size: 12px;
+        }
+
+        .vehicle-value {
+            font-size: 19px;
+            font-weight: 600;
+            letter-spacing: .01em;
+        }
+
+        .vehicle-subtext {
+            margin-top: 4px;
+            color: rgba(235, 241, 251, .68);
+            font-size: 11px;
+        }
+
+        .speed-badge {
+            display: inline-grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border: 3px solid rgba(255, 112, 112, .82);
+            border-radius: 50%;
+            background: rgba(20, 22, 30, .8);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .tip-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tip-toggle {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            width: 100%;
+            border-radius: 10px;
+            padding: 7px 9px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .tip-toggle[aria-pressed="true"] i {
+            color: #a8e6cb;
+        }
+
+        .listening-bar {
+            position: fixed;
+            z-index: 20;
+            left: clamp(18px, 4vw, 58px);
+            bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #fff;
+        }
+
+        .listening-orb {
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(190, 222, 255, .35);
+            border-radius: 50%;
+            color: #b9e2ff;
+            background: rgba(15, 34, 58, .63);
+            box-shadow: 0 0 20px rgba(92, 168, 249, .28);
+        }
+
+        .listening-orb[aria-pressed="true"] {
+            background: rgba(201, 78, 91, .68);
+            box-shadow: 0 0 24px rgba(255, 93, 115, .5);
+        }
+
+        .listening-copy strong,
+        .listening-copy span {
+            display: block;
+        }
+
+        .listening-copy strong {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .listening-copy span {
+            margin-top: 2px;
+            color: rgba(226, 237, 251, .7);
+            font-size: 10px;
+        }
+
+        body.drive-mode footer {
+            position: fixed;
+            z-index: 1;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: .58;
+        }
+
+        body.drive-mode .tech-decor {
+            color: rgba(239, 245, 255, .58);
+        }
+
+        body.drive-mode .tech-decor {
+            display: none;
+        }
+
+        body.drive-mode.compact-ui .concierge-card {
+            min-height: 0;
+        }
+
+        body.drive-mode.compact-ui .concierge-messages {
+            max-height: 28vh;
+            min-height: 100px;
+        }
+
+        @media (max-width: 820px) {
+            body.drive-mode {
+                overflow-y: auto;
+            }
+
+            body.drive-mode .drive-main {
+                min-height: 100vh;
+                padding: 84px 13px 75px;
+            }
+
+            body.drive-mode .drive-shell {
+                padding: 8px 0;
+            }
+
+            body.drive-mode .brand-header {
+                left: 65px;
+                top: 19px;
+            }
+
+            body.drive-mode .brand-header .avatar-glow {
+                width: 40px;
+                height: 40px;
+            }
+
+            body.drive-mode .brand-header h1 {
+                font-size: 15px;
+            }
+
+            .drive-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .concierge-card {
+                min-height: 55vh;
+            }
+
+            .vehicle-stack {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 520px) {
+            body.drive-mode .drive-header {
+                inset: 13px 11px auto;
+            }
+
+            body.drive-mode .drive-header button[aria-label="Settings"] {
+                padding: 8px 11px;
+            }
+
+            .vehicle-stack {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .vehicle-card {
+                padding: 12px;
+            }
+
+            .vehicle-value {
+                font-size: 16px;
+            }
+
+            .concierge-card {
+                padding: 14px;
+            }
+
+            .drive-icon-button {
+                width: 35px;
+                height: 38px;
+            }
+
+            .drive-submit {
+                min-width: 38px;
+                padding: 0 10px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="tech-bg min-h-screen flex flex-col justify-between p-6 relative">
+
+    <header class="drive-header w-full flex items-center justify-between z-20 max-w-7xl mx-auto">
+        <button aria-label="Menu" class="text-white text-xl p-2 rounded-xl hover:bg-white/10 transition">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <button aria-label="Settings" class="flex items-center gap-2 bg-[#101b33]/80 hover:bg-[#1a2b4c] border border-white/10 px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md transition shadow-lg">
+            <i class="fa-solid fa-gear text-slate-300"></i>
+            <span>Settings</span>
+        </button>
+    </header>
+
+    <main class="drive-main flex-grow flex items-center justify-center z-10 px-4 py-6">
+        <div class="drive-shell glass-card w-full max-w-lg p-8 sm:p-10 relative flex flex-col items-center">
+            
+            <!-- Side decorative sci-fi text fragments -->
+            <div class="tech-decor absolute left-6 top-24 hidden sm:block">
+                01010101 V:2.4.1<br>
+                AUTH_API: <span id="backendStatus">CHECKING</span><br>
+                GEMINI: <span id="geminiStatus">CHECKING</span><br>
+                SYS_CHECK: OK
+            </div>
+            <div class="tech-decor absolute right-6 bottom-24 hidden sm:block text-right">
+                LAT: 8.9241 N<br>
+                LONG: 124.9812 E<br>
+                ENCRYPTION: AES-256<br>
+                STATUS: <span id="connectionStatusText">CHECKING</span>
+            </div>
+
+            <!-- Header Branding -->
+            <div class="brand-header flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 p-[2px] avatar-glow">
+                    <div class="w-full h-full bg-[#0a1224] rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-robot text-cyan-400 text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide text-white">GIO DriveAI</h1>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                        <span id="assistantStatusText">Ready to assist</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <section id="loginPanel" class="w-full flex flex-col items-center">
+            <h2 class="text-2xl font-semibold text-white mb-6 text-center">Driver Log In</h2>
+
+            <!-- Form -->
+            <form id="loginForm" class="w-full space-y-4">
+                
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-regular fa-user"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        maxlength="254"
+                        autocomplete="username"
+                        required
+                        placeholder="Username or email" 
+                        class="glass-input w-full pl-11 pr-4 py-3.5 rounded-xl text-white placeholder-slate-400 text-sm"
+                    >
+                </div>
+
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        maxlength="128"
+                        autocomplete="current-password"
+                        required
+                        placeholder="Password" 
+                        class="glass-input w-full pl-11 pr-12 py-3.5 rounded-xl text-white placeholder-slate-400 text-sm"
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePasswordButton"
+                        aria-label="Toggle Password Visibility"
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white transition"
+                    >
+                        <i id="eyeIcon" class="fa-regular fa-eye-slash"></i>
+                    </button>
+                </div>
+
+                <button 
+                    type="submit" 
+                    id="loginButton"
+                    class="btn-glow w-full py-3.5 rounded-xl font-semibold text-white tracking-wide text-sm mt-2 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    Log In
+                </button>
+            </form>
+
+            <div class="mt-6 flex flex-col items-center space-y-3 text-sm">
+                <button type="button" id="forgotPasswordButton" class="text-slate-300 hover:text-cyan-400 transition">Forgot Password?</button>
+                <button type="button" id="registerButton" class="text-slate-300 hover:text-cyan-400 transition">Register New Account</button>
+                <button type="button" id="vehicleButton" class="flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition pt-1">
+                    <i class="fa-solid fa-key text-xs"></i>
+                    <span>Connect via Vehicle</span>
+                </button>
+            </div>
+            </section>
+
+            <section id="assistantPanel" class="assistant-panel hidden" aria-label="GIO DriveAI assistant">
+                <div class="drive-grid">
+                    <section class="drive-glass concierge-card" aria-label="DriveAI concierge chat">
+                        <div class="concierge-top">
+                            <div class="assistant-identity">
+                                <span class="mini-robot" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+                                <div>
+                                    <h2 class="concierge-title">DriveAI Concierge Chat</h2>
+                                    <p id="assistantConnectionStatus" class="text-[10px] text-slate-300/80" role="status">Checking Gemini connection...</p>
+                                </div>
+                            </div>
+                            <span class="chat-clock" id="chatClock" aria-label="Current time"></span>
+                        </div>
+                        <div id="chatMessages" class="concierge-messages" role="log" aria-live="polite" aria-relevant="additions">
+                            <p class="text-slate-300">Good morning! Drive safely. I’m your AI driving assistant. How can I help you today?</p>
+                        </div>
+                        <div class="drive-action-row" aria-label="Assistant shortcuts">
+                            <button type="button" class="drive-action" id="setRouteButton"><i class="fa-solid fa-route mr-1"></i>Set route</button>
+                            <button type="button" class="drive-action" id="searchResultsButton"><i class="fa-solid fa-magnifying-glass mr-1"></i>Search help</button>
+                            <button type="button" class="drive-action" id="alternativeRoutesButton"><i class="fa-solid fa-code-branch mr-1"></i>Alternative routes</button>
+                            <button type="button" class="drive-action" id="playMessageButton"><i class="fa-solid fa-volume-high mr-1"></i>Play welcome</button>
+                            <button type="button" class="drive-action" id="clearChatButton"><i class="fa-solid fa-eraser mr-1"></i>Clear chat</button>
+                        </div>
+                        <form id="chatForm" class="drive-composer">
+                            <label for="chatInput" class="sr-only">Message GIO DriveAI</label>
+                            <textarea id="chatInput" name="message" rows="1" maxlength="2000" required placeholder="Ask GIO DriveAI..." aria-label="Message GIO DriveAI"></textarea>
+                            <div class="composer-actions">
+                                <button type="button" id="voiceInputButton" class="drive-icon-button" aria-label="Start voice input" title="Start voice input" aria-pressed="false">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </button>
+                                <button type="submit" id="sendMessageButton" class="drive-submit" aria-label="Send message" title="Send message">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="flex justify-end mt-2">
+                            <button type="button" id="clearChatConfirmButton" class="text-[10px] text-slate-300/70 hover:text-white underline">Clear conversation</button>
+                        </div>
+                    </section>
+
+                    <aside class="vehicle-stack" aria-label="Driving information and quick tips">
+                        <section class="drive-glass vehicle-card">
+                            <div class="vehicle-heading"><span>Next turn</span><i class="fa-solid fa-location-arrow text-sky-200"></i></div>
+                            <div class="vehicle-value">Navigation not connected</div>
+                            <p class="vehicle-subtext">Connect a maps service for live directions.</p>
+                        </section>
+                        <section class="drive-glass vehicle-card">
+                            <div class="vehicle-heading"><span>Vehicle status</span><i class="fa-solid fa-car-side text-sky-200"></i></div>
+                            <div class="vehicle-value">No live vehicle data</div>
+                            <p class="vehicle-subtext">Speed and traffic sensors are not connected.</p>
+                        </section>
+                        <section class="drive-glass vehicle-card">
+                            <div class="vehicle-heading"><strong><i class="fa-regular fa-lightbulb mr-2"></i>Quick tips</strong><span>Tap to mark</span></div>
+                            <div class="tip-list">
+                                <button type="button" class="tip-toggle" aria-pressed="true"><i class="fa-solid fa-check"></i><span>Keep a safe distance</span></button>
+                                <button type="button" class="tip-toggle" aria-pressed="true"><i class="fa-solid fa-check"></i><span>Wear your seatbelt</span></button>
+                                <button type="button" class="tip-toggle" aria-pressed="true"><i class="fa-solid fa-check"></i><span>Avoid distractions</span></button>
+                                <button type="button" class="tip-toggle" aria-pressed="true"><i class="fa-solid fa-check"></i><span>Follow speed limits</span></button>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div class="listening-bar hidden" id="listeningBar" aria-live="polite">
+        <button type="button" class="listening-orb" id="listeningButton" aria-label="Start voice input" aria-pressed="false">
+            <i class="fa-solid fa-wave-square"></i>
+        </button>
+        <div class="listening-copy">
+            <strong id="listeningLabel">Ready when you are</strong>
+            <span id="listeningHelp">Use the microphone or type a message</span>
+        </div>
+    </div>
+
+    <footer class="text-center text-xs text-slate-500 z-20 pb-2">
+        GIO DriveAI Neural Interface &copy; 2026. All rights reserved.
+    </footer>
+
+    <!-- Message Box Overlay (replacing native alerts) -->
+    <div id="messageModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="glass-card max-w-sm w-full p-6 text-center space-y-4">
+            <div class="w-10 h-10 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto text-lg">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <h2 id="modalTitle" class="text-lg font-semibold text-white"></h2>
+            <div id="modalContent" class="text-slate-200 text-sm space-y-3"></div>
+            <div id="modalActions" class="flex flex-col gap-2"></div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('messageModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        const modalActions = document.getElementById('modalActions');
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const loginPanel = document.getElementById('loginPanel');
+        const assistantPanel = document.getElementById('assistantPanel');
+        const assistantConnectionStatus = document.getElementById('assistantConnectionStatus');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const listeningBar = document.getElementById('listeningBar');
+        const listeningLabel = document.getElementById('listeningLabel');
+        const listeningHelp = document.getElementById('listeningHelp');
+        const voiceInputButton = document.getElementById('voiceInputButton');
+        const listeningButton = document.getElementById('listeningButton');
+        const chatHistory = [];
+        let assistantConfigured = false;
+        let speechRecognition = null;
+        let speechPlaybackActive = false;
+        let speechEnabled = localStorage.getItem('gio-speech-enabled') !== 'false';
+
+        async function api(path, body) {
+            const response = await fetch(path, {
+                method: body ? 'POST' : 'GET',
+                headers: body ? { 'Content-Type': 'application/json' } : {},
+                body: body ? JSON.stringify(body) : undefined,
+                credentials: 'same-origin'
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'The request could not be completed.');
+            return data;
+        }
+
+        function closeMsg() {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function openDialog(title, message, actions) {
+            modalTitle.textContent = title;
+            modalContent.replaceChildren();
+            if (message) {
+                const paragraph = document.createElement('p');
+                paragraph.textContent = message;
+                modalContent.append(paragraph);
+            }
+            modalActions.replaceChildren();
+            (actions || [{ label: 'OK', onClick: closeMsg }]).forEach(({ label, onClick, secondary = false }) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = label;
+                button.className = secondary
+                    ? 'w-full py-2 rounded-lg text-sm font-semibold border border-white/20 hover:bg-white/10'
+                    : 'btn-glow w-full py-2 rounded-lg text-sm font-semibold';
+                button.addEventListener('click', onClick);
+                modalActions.append(button);
+            });
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function addField(form, label, name, type, options = {}) {
+            const wrapper = document.createElement('label');
+            wrapper.className = 'block text-left space-y-1';
+            const caption = document.createElement('span');
+            caption.className = 'text-xs text-slate-300';
+            caption.textContent = label;
+            const input = document.createElement('input');
+            input.name = name;
+            input.type = type;
+            input.required = true;
+            input.autocomplete = options.autocomplete || 'off';
+            if (options.minLength) input.minLength = options.minLength;
+            if (options.maxLength) input.maxLength = options.maxLength;
+            if (options.value) input.value = options.value;
+            input.className = 'glass-input w-full px-3 py-2 rounded-lg text-white text-sm';
+            wrapper.append(caption, input);
+            form.append(wrapper);
+            return input;
+        }
+
+        function showFormDialog(title, fields, submitLabel, onSubmit) {
+            modalTitle.textContent = title;
+            modalContent.replaceChildren();
+            const form = document.createElement('form');
+            form.id = 'modalForm';
+            form.className = 'space-y-3 text-left';
+            fields.forEach((field) => addField(form, ...field));
+            const error = document.createElement('p');
+            error.className = 'text-rose-300 text-xs';
+            error.setAttribute('role', 'alert');
+            form.append(error);
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const submitButton = modalActions.querySelector('button[type="submit"]');
+                const actionButtons = [...modalActions.querySelectorAll('button')];
+                actionButtons.forEach((button) => { button.disabled = true; });
+                submitButton.textContent = 'Please wait...';
+                error.textContent = '';
+                try {
+                    await onSubmit(Object.fromEntries(new FormData(form).entries()));
+                } catch (requestError) {
+                    error.textContent = requestError.message;
+                    actionButtons.forEach((button) => { button.disabled = false; });
+                    submitButton.textContent = submitLabel;
+                }
+            });
+            modalContent.append(form);
+            modalActions.replaceChildren();
+            const submit = document.createElement('button');
+            submit.type = 'submit';
+            submit.setAttribute('form', form.id);
+            submit.textContent = submitLabel;
+            submit.className = 'btn-glow w-full py-2 rounded-lg text-sm font-semibold';
+            const cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.textContent = 'Cancel';
+            cancel.className = 'w-full py-2 rounded-lg text-sm font-semibold border border-white/20 hover:bg-white/10';
+            cancel.addEventListener('click', closeMsg);
+            modalActions.append(submit, cancel);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        document.getElementById('togglePasswordButton').addEventListener('click', () => {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const visible = passwordInput.type === 'password';
+            passwordInput.type = visible ? 'text' : 'password';
+            document.getElementById('togglePasswordButton').setAttribute('aria-pressed', String(visible));
+            eyeIcon.classList.toggle('fa-eye', visible);
+            eyeIcon.classList.toggle('fa-eye-slash', !visible);
+        });
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const button = document.getElementById('loginButton');
+            button.disabled = true;
+            button.textContent = 'Signing in...';
+            try {
+                const result = await api('/api/auth/login', {
+                    username: usernameInput.value.trim(),
+                    password: document.getElementById('password').value
+                });
+                loginForm.reset();
+                updateSignedInState(result.user);
+                openDialog('Welcome back', `Signed in as ${result.user.username}.`);
+            } catch (error) {
+                openDialog('Sign-in failed', error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Log In';
+            }
+        });
+
+        function updateSignedInState(user) {
+            const label = document.getElementById('assistantStatusText');
+            const status = label && label.parentElement;
+            if (label) label.textContent = user ? `Signed in: ${user.username}` : 'Ready to assist';
+            loginPanel.classList.toggle('hidden', Boolean(user));
+            assistantPanel.classList.toggle('hidden', !user);
+            document.body.classList.toggle('drive-mode', Boolean(user));
+            document.querySelector('.drive-main').classList.toggle('drive-main-active', Boolean(user));
+            document.querySelector('.drive-shell').classList.toggle('drive-shell-active', Boolean(user));
+            document.querySelector('.brand-header').classList.toggle('brand-header-active', Boolean(user));
+            listeningBar.classList.toggle('hidden', !user);
+            let logout = document.getElementById('logoutButton');
+            if (user && !logout) {
+                logout = document.createElement('button');
+                logout.id = 'logoutButton';
+                logout.type = 'button';
+                logout.className = 'text-xs text-cyan-300 hover:text-white underline';
+                logout.textContent = 'Sign out';
+                logout.addEventListener('click', async () => {
+                    try {
+                        await api('/api/auth/logout', {});
+                        if (speechRecognition) speechRecognition.stop();
+                        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                        speechPlaybackActive = false;
+                        document.querySelector('#playMessageButton i').className = 'fa-solid fa-volume-high mr-1';
+                        document.getElementById('playMessageButton').lastChild.textContent = 'Play welcome';
+                        chatHistory.length = 0;
+                        resetChat();
+                        updateSignedInState(null);
+                        openDialog('Signed out', 'Your session has ended.');
+                    } catch (error) {
+                        openDialog('Could not sign out', error.message);
+                    }
+                });
+                status && status.parentElement.append(logout);
+                checkAssistantConnection();
+            } else if (!user && logout) {
+                logout.remove();
+            }
+        }
+
+        function appendChatMessage(role, text) {
+            const message = document.createElement(role === 'user' ? 'div' : 'div');
+            message.className = role === 'user' ? 'chat-user' : 'chat-assistant';
+            message.textContent = text;
+            chatMessages.append(message);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function resetChat() {
+            chatMessages.replaceChildren();
+            const welcome = document.createElement('p');
+            welcome.className = 'text-slate-300';
+            welcome.textContent = 'Hello, I’m GIO DriveAI. How can I help you?';
+            chatMessages.append(welcome);
+        }
+
+        async function checkBackendConnection() {
+            const backendStatus = document.getElementById('backendStatus');
+            const geminiStatus = document.getElementById('geminiStatus');
+            const connectionStatus = document.getElementById('connectionStatusText');
+            try {
+                const status = await api('/api/health');
+                backendStatus.textContent = 'ONLINE';
+                geminiStatus.textContent = status.assistantConfigured ? 'KEY LOADED' : 'LOCAL MODE';
+                connectionStatus.textContent = 'ONLINE';
+                if (!status.assistantConfigured && !document.getElementById('logoutButton')) {
+                    document.getElementById('assistantStatusText').textContent = 'AI needs server key';
+                }
+            } catch {
+                backendStatus.textContent = 'OFFLINE';
+                geminiStatus.textContent = 'UNAVAILABLE';
+                connectionStatus.textContent = 'OFFLINE';
+                document.getElementById('assistantStatusText').textContent = 'Backend unavailable';
+            }
+        }
+
+        async function checkAssistantConnection() {
+            assistantConnectionStatus.textContent = 'Checking Gemini connection...';
+            try {
+                const status = await api('/api/assistant/status');
+                assistantConfigured = status.available;
+                assistantConnectionStatus.textContent = status.configured
+                    ? `Gemini key loaded · ${status.model}`
+                    : 'Local assistant ready · Gemini is not configured.';
+                chatInput.disabled = !status.available;
+                document.getElementById('sendMessageButton').disabled = !status.available;
+                chatInput.placeholder = status.available
+                    ? 'Message GIO DriveAI...'
+                    : 'Assistant is currently unavailable.';
+            } catch (error) {
+                assistantConfigured = false;
+                assistantConnectionStatus.textContent = error.message;
+                chatInput.disabled = true;
+                document.getElementById('sendMessageButton').disabled = true;
+            }
+        }
+
+        async function sendAssistantMessage(message) {
+            const text = message.trim();
+            if (!text || !assistantConfigured) return;
+            const sendButton = document.getElementById('sendMessageButton');
+            const originalButton = sendButton.innerHTML;
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span class="sr-only">GIO is thinking</span>';
+            chatHistory.push({ role: 'user', text });
+            appendChatMessage('user', text);
+            chatInput.value = '';
+            try {
+                const messages = chatHistory.slice(-12);
+                while (messages[0]?.role === 'model') messages.shift();
+                const result = await api('/api/assistant/chat', { messages });
+                chatHistory.push({ role: 'model', text: result.reply });
+                appendChatMessage('model', result.reply);
+            } catch (error) {
+                chatHistory.pop();
+                appendChatMessage('model', `I couldn't send that message: ${error.message}`);
+            } finally {
+                chatInput.disabled = !assistantConfigured;
+                sendButton.disabled = !assistantConfigured;
+                sendButton.innerHTML = originalButton;
+                if (assistantConfigured) chatInput.focus();
+            }
+        }
+
+        chatForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const message = chatInput.value;
+            if (!message) return;
+            await sendAssistantMessage(message);
+        });
+
+        function clearConversation() {
+            chatHistory.length = 0;
+            resetChat();
+            chatInput.focus();
+        }
+
+        document.getElementById('clearChatButton').addEventListener('click', clearConversation);
+        document.getElementById('clearChatConfirmButton').addEventListener('click', clearConversation);
+
+        document.getElementById('setRouteButton').addEventListener('click', () => {
+            showFormDialog('Plan a route', [
+                ['Where would you like to go?', 'destination', 'text', { maxLength: 160 }]
+            ], 'Ask GIO', async ({ destination }) => {
+                closeMsg();
+                await sendAssistantMessage(`Help me plan a safe route to ${destination}. I understand live maps are not connected, so give general planning suggestions and remind me to use navigation while parked.`);
+            });
+        });
+
+        document.getElementById('searchResultsButton').addEventListener('click', () => {
+            showFormDialog('Search with GIO', [
+                ['What would you like help finding?', 'query', 'text', { maxLength: 160 }]
+            ], 'Ask GIO', async ({ query }) => {
+                closeMsg();
+                await sendAssistantMessage(`Give me helpful general information about: ${query}. Be clear if current/live search results are not available.`);
+            });
+        });
+
+        document.getElementById('alternativeRoutesButton').addEventListener('click', async () => {
+            await sendAssistantMessage('Can you suggest general ways to compare alternative routes? Be clear that you do not have live maps or traffic information.');
+        });
+
+        document.getElementById('playMessageButton').addEventListener('click', () => {
+            if (!speechEnabled) {
+                openDialog('Voice playback is off', 'Turn on voice playback in Settings to hear GIO DriveAI.');
+                return;
+            }
+            if (!('speechSynthesis' in window)) {
+                openDialog('Voice playback unavailable', 'This browser does not support speech playback.');
+                return;
+            }
+            if (speechPlaybackActive) {
+                window.speechSynthesis.cancel();
+                speechPlaybackActive = false;
+                document.querySelector('#playMessageButton i').className = 'fa-solid fa-volume-high mr-1';
+                document.getElementById('playMessageButton').lastChild.textContent = 'Play welcome';
+                listeningLabel.textContent = 'Ready when you are';
+                listeningHelp.textContent = 'Use the microphone or type a message';
+                return;
+            }
+            const latestReply = [...chatHistory].reverse().find((item) => item.role === 'model')?.text
+                || 'Hello. I’m GIO DriveAI, your driver assistant. Please use chat only when it is safe to do so.';
+            const utterance = new SpeechSynthesisUtterance(latestReply);
+            utterance.onstart = () => {
+                speechPlaybackActive = true;
+                document.querySelector('#playMessageButton i').className = 'fa-solid fa-stop mr-1';
+                document.getElementById('playMessageButton').lastChild.textContent = 'Stop voice';
+                listeningLabel.textContent = 'GIO is speaking';
+                listeningHelp.textContent = 'Tap Play welcome again to stop playback';
+            };
+            utterance.onend = () => {
+                speechPlaybackActive = false;
+                document.querySelector('#playMessageButton i').className = 'fa-solid fa-volume-high mr-1';
+                document.getElementById('playMessageButton').lastChild.textContent = 'Play welcome';
+                listeningLabel.textContent = 'Ready when you are';
+                listeningHelp.textContent = 'Use the microphone or type a message';
+            };
+            utterance.onerror = () => {
+                speechPlaybackActive = false;
+                document.querySelector('#playMessageButton i').className = 'fa-solid fa-volume-high mr-1';
+                document.getElementById('playMessageButton').lastChild.textContent = 'Play welcome';
+                listeningLabel.textContent = 'Voice playback stopped';
+                listeningHelp.textContent = 'You can continue by typing a message';
+            };
+            window.speechSynthesis.speak(utterance);
+        });
+
+        function setListeningState(isListening) {
+            [voiceInputButton, listeningButton].forEach((button) => {
+                button.setAttribute('aria-pressed', String(isListening));
+                button.setAttribute('aria-label', isListening ? 'Stop voice input' : 'Start voice input');
+                button.title = isListening ? 'Stop voice input' : 'Start voice input';
+            });
+            listeningLabel.textContent = isListening ? 'Listening...' : 'Ready when you are';
+            listeningHelp.textContent = isListening
+                ? 'Speak now; your message will be sent when you finish.'
+                : 'Use the microphone or type a message';
+        }
+
+        function beginVoiceInput() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Recognition) {
+                openDialog('Voice input unavailable', 'Voice recognition is not supported by this browser. You can still type a message.');
+                return;
+            }
+            if (speechRecognition) {
+                speechRecognition.stop();
+                return;
+            }
+            speechRecognition = new Recognition();
+            speechRecognition.lang = navigator.language || 'en-US';
+            speechRecognition.interimResults = false;
+            speechRecognition.maxAlternatives = 1;
+            speechRecognition.onstart = () => setListeningState(true);
+            speechRecognition.onresult = (event) => {
+                const spokenText = event.results[0][0].transcript.trim();
+                if (spokenText) sendAssistantMessage(spokenText);
+            };
+            speechRecognition.onerror = (event) => {
+                listeningHelp.textContent = event.error === 'not-allowed'
+                    ? 'Allow microphone access in your browser to use voice input.'
+                    : `Voice input error: ${event.error}. You can type instead.`;
+            };
+            speechRecognition.onend = () => {
+                speechRecognition = null;
+                setListeningState(false);
+            };
+            try {
+                speechRecognition.start();
+            } catch (error) {
+                speechRecognition = null;
+                openDialog('Could not start voice input', error.message);
+            }
+        }
+
+        voiceInputButton.addEventListener('click', beginVoiceInput);
+        listeningButton.addEventListener('click', beginVoiceInput);
+        document.querySelectorAll('.tip-toggle').forEach((button, index) => {
+            const key = `gio-tip-${index}`;
+            const saved = localStorage.getItem(key);
+            if (saved !== null) button.setAttribute('aria-pressed', saved);
+            const icon = button.querySelector('i');
+            const updateTipIcon = () => {
+                icon.classList.toggle('fa-check', button.getAttribute('aria-pressed') === 'true');
+                icon.classList.toggle('fa-plus', button.getAttribute('aria-pressed') !== 'true');
+            };
+            updateTipIcon();
+            button.addEventListener('click', () => {
+                const checked = button.getAttribute('aria-pressed') !== 'true';
+                button.setAttribute('aria-pressed', String(checked));
+                localStorage.setItem(key, String(checked));
+                updateTipIcon();
+            });
+        });
+
+        function updateClock() {
+            document.getElementById('chatClock').textContent = new Intl.DateTimeFormat([], {
+                hour: 'numeric',
+                minute: '2-digit'
+            }).format(new Date());
+        }
+
+        updateClock();
+        window.setInterval(updateClock, 30000);
+
+        document.getElementById('registerButton').addEventListener('click', () => {
+            showFormDialog('Create driver account', [
+                ['Username', 'username', 'text', { autocomplete: 'username', minLength: 3, maxLength: 32 }],
+                ['Email address', 'email', 'email', { autocomplete: 'email', maxLength: 254 }],
+                ['Password (at least 9 characters)', 'password', 'password', { autocomplete: 'new-password', minLength: 9, maxLength: 128 }]
+            ], 'Register', async (values) => {
+                const result = await api('/api/auth/register', values);
+                updateSignedInState(result.user);
+                openDialog('Account created', `Welcome, ${result.user.username}. Your account is ready.`);
+            });
+        });
+
+        document.getElementById('forgotPasswordButton').addEventListener('click', () => {
+            showFormDialog('Recover account', [
+                ['Account email', 'email', 'email', { autocomplete: 'email', maxLength: 254 }]
+            ], 'Request recovery code', async ({ email }) => {
+                const result = await api('/api/auth/forgot-password', { email });
+                if (!result.resetCode) {
+                    openDialog('Check recovery options', result.message);
+                    return;
+                }
+                showFormDialog('Reset password', [
+                    ['Recovery code', 'code', 'text', { maxLength: 32, value: result.resetCode }],
+                    ['New password (at least 9 characters)', 'password', 'password', { autocomplete: 'new-password', minLength: 9, maxLength: 128 }]
+                ], 'Reset password', async ({ code, password }) => {
+                    await api('/api/auth/reset-password', { email, code, password });
+                    openDialog('Password updated', 'You can now sign in with your new password.');
+                });
+            });
+        });
+
+        document.getElementById('vehicleButton').addEventListener('click', async () => {
+            try {
+                const result = await api('/api/vehicle/pairing', {});
+                openDialog('Vehicle pairing code', `${result.code} — enter this one-time code in your vehicle companion app within 5 minutes.`);
+            } catch (error) {
+                openDialog('Vehicle connection unavailable', error.message);
+            }
+        });
+
+        document.querySelector('header button[aria-label="Menu"]').addEventListener('click', () => {
+            if (document.getElementById('logoutButton')) {
+                openDialog('DriveAI menu', 'Choose a concierge action.', [
+                    { label: 'Plan a route', onClick: () => document.getElementById('setRouteButton').click() },
+                    { label: 'Connect via vehicle', onClick: () => document.getElementById('vehicleButton').click(), secondary: true },
+                    { label: 'Clear conversation', onClick: () => { closeMsg(); clearConversation(); }, secondary: true },
+                    { label: 'Close', onClick: closeMsg, secondary: true }
+                ]);
+                return;
+            }
+            openDialog('Quick menu', 'Choose an account action.', [
+                { label: 'Register new account', onClick: () => document.getElementById('registerButton').click() },
+                { label: 'Recover password', onClick: () => document.getElementById('forgotPasswordButton').click(), secondary: true },
+                { label: 'Close', onClick: closeMsg, secondary: true }
+            ]);
+        });
+
+        function openDriveSettings() {
+            const compact = localStorage.getItem('gio-compact') === 'true';
+            openDialog('Driving display settings', `Voice playback is ${speechEnabled ? 'on' : 'off'}. ${compact ? 'Compact' : 'Standard'} chat layout is enabled.`, [
+                {
+                    label: speechEnabled ? 'Turn voice playback off' : 'Turn voice playback on',
+                    onClick: () => {
+                        speechEnabled = !speechEnabled;
+                        localStorage.setItem('gio-speech-enabled', String(speechEnabled));
+                        if (!speechEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+                        openDriveSettings();
+                    }
+                },
+                {
+                    label: compact ? 'Use standard chat layout' : 'Use compact chat layout',
+                    onClick: () => {
+                        const next = !compact;
+                        localStorage.setItem('gio-compact', String(next));
+                        document.body.classList.toggle('compact-ui', next);
+                        openDriveSettings();
+                    }
+                },
+                {
+                    label: 'Pair a vehicle',
+                    onClick: () => document.getElementById('vehicleButton').click(),
+                    secondary: true
+                },
+                { label: 'Close', onClick: closeMsg, secondary: true }
+            ]);
+        }
+
+        document.querySelector('header button[aria-label="Settings"]').addEventListener('click', () => {
+            if (document.getElementById('logoutButton')) {
+                openDriveSettings();
+                return;
+            }
+            const compact = localStorage.getItem('gio-compact') === 'true';
+            openDialog('Settings', compact ? 'Compact card layout is enabled.' : 'Standard card layout is enabled.', [
+                {
+                    label: compact ? 'Use standard layout' : 'Use compact layout',
+                    onClick: () => {
+                        const next = !compact;
+                        localStorage.setItem('gio-compact', String(next));
+                        document.querySelector('.glass-card').classList.toggle('p-6', next);
+                        document.querySelector('.glass-card').classList.toggle('p-8', !next);
+                        document.querySelector('.glass-card').classList.toggle('sm:p-10', !next);
+                        openDialog('Settings saved', next ? 'Compact card layout is enabled on this device.' : 'Standard card layout is enabled on this device.');
+                    }
+                },
+                { label: 'Close', onClick: closeMsg, secondary: true }
+            ]);
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeMsg();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeMsg();
+        });
+
+        const savedCompact = localStorage.getItem('gio-compact') === 'true';
+        if (savedCompact) {
+            document.querySelector('.glass-card').classList.remove('p-8', 'sm:p-10');
+            document.querySelector('.glass-card').classList.add('p-6');
+            document.body.classList.add('compact-ui');
+        }
+        checkBackendConnection();
+        api('/api/auth/me').then((result) => {
+            if (result.user) updateSignedInState(result.user);
+        }).catch(() => {
+            document.getElementById('assistantStatusText').textContent = 'Backend unavailable';
+            openDialog('Connection error', 'Could not check the current sign-in session. Refresh after the server is available.');
+        });
+    </script>
+</body>
+</html>

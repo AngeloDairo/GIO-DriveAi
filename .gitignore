@@ -1,0 +1,4 @@
+gio-driveai.sqlite
+gio-driveai.sqlite-shm
+gio-driveai.sqlite-wal
+.env
